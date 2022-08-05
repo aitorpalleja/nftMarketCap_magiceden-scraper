@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/Aitor-bot/nftmarketcap-backend/issues"
   },
-  "homepage": "https://github.com/Aitor-bot/nftmarketcap-backend#readme"
+  "homepage": "https://github.com/Aitor-bot/nftmarketcap-backend#readme",
+  "dependencies": {
+    "puppeteer": "^16.0.0"
+  }
 }
