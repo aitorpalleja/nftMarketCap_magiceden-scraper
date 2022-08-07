@@ -1,6 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const router = require('./routes/scraperRoutes');
 import dotenv from 'dotenv'
+
 dotenv.config()
 const mongodbRoute = process.env.MONGO_DB_URI
 const app = express();
@@ -8,12 +10,14 @@ const port = process.env.PORT || 3001;
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+
 app.use(function (req: any, res: { header: (arg0: string, arg1: string) => void; }, next: () => void) {
   res.header('Access-Control-Allow-Origin', "*");
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
   res.header('Access-Control-Allow-Headers', 'Content-Type');
   next();
 })
+app.use(router);
 
 /*MONGODB*/
 const options = {
@@ -32,3 +36,4 @@ mongoose.connect(mongodbRoute, options, (err: any) => {
   });
   console.log(`Conexión con Mongo correcta.`)
 })
+;
