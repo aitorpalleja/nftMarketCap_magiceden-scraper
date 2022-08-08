@@ -26,6 +26,7 @@ const options = {
   //reconnectTries: 30,
   useNewUrlParser: true
 };
+
 mongoose.Promise = global.Promise
 mongoose.connect(mongodbRoute, options, (err: any) => {
   if (err) {

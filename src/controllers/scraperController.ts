@@ -21,7 +21,7 @@ exports.getScraperByName = (req: any, res: any) => {
 
 exports.scrapNftAndSaveData = (req: any, res: any) => {
     let symbol = req.params.nftSymbol;
-    // Scrapeamela.
+    // Scrap
     const scraper = new ScraperService();
     scraper.getNftData(symbol).then((response) => {
         res.status(200).send({nftData: response});
@@ -30,5 +30,5 @@ exports.scrapNftAndSaveData = (req: any, res: any) => {
     });
     
 
-    // Guardamela crack.
+    // Save
 }
