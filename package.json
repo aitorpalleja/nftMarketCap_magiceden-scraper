@@ -17,7 +17,7 @@
     "url": "git+https://github.com/Aitor-bot/nftmarketcap-backend.git"
   },
   "author": "",
-  "license": "ISC",
+  "license": "ISC", 
   "bugs": {
     "url": "https://github.com/Aitor-bot/nftmarketcap-backend/issues"
   },
