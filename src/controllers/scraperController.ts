@@ -32,3 +32,13 @@ exports.scrapNftAndSaveData = (req: any, res: any) => {
 
     // Save
 }
+
+exports.getAllCollections = (req: any, res: any) => {
+    console.log("aqui estoy");
+    const scraper = new ScraperService();
+    scraper.getAllCollectionsData().then((response) => {
+        res.status(200).send({allCollections: response});
+    }).catch((err) => {
+
+    });
+}
