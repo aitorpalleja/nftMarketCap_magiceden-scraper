@@ -12,6 +12,13 @@ export class ScraperService {
     return data;
   }
 
+  async getCollectionListData(symbolList: any) : Promise<any> {
+    const startTime: number = Date.now() / 1000;
+    const data: any = await this._scrapCollectionListData(startTime, symbolList);
+
+    return data;
+  }
+
   async getNftData(symbol: string): Promise<any> {
     const startTime: number = Date.now() / 1000;
     const allSymbolsArray: string[] = symbol.split(",");
@@ -28,6 +35,28 @@ export class ScraperService {
 
   _scrapAllCollectionData = async (startTime) => {
     const url: string = "https://api-mainnet.magiceden.io/all_collections_with_escrow_data?edge_cache=true";
+    let result: any[] = [];
+    const browser: any = await puppeteer.launch({
+      headless: true,
+      args: ["--no-sandbox"],
+    });
+    const page: any = await browser.newPage();
+    await page.setDefaultNavigationTimeout(0); 
+    await page.setUserAgent(
+      "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36"
+    );
+    await page.goto(url);
+    await page.waitForFunction("window.document.getElementsByTagName('pre') && window.document.getElementsByTagName('pre').length > 0");
+
+
+    result.push(this._getTimeResult("_scrapAllCollectionData", startTime));
+    result.push(await this._getAlCollectionPageData(page));
+    await browser.close();
+    return result;
+  }
+
+  _scrapCollectionListData = async (startTime, symbolList) => {
+    const url: string = "https://api-mainnet.magiceden.io/rpc/getCollectionsWithSymbols?symbols=" + symbolList + "&edge_cache%3Dtrue";
     let result: any[] = [];
     const browser: any = await puppeteer.launch({
       headless: true,
