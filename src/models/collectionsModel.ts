@@ -1,4 +1,5 @@
-const mongoose = require("mongoose");
+// const mongoose = require("mongoose");
+import mongoose from 'mongoose'
 
 const collectionModel = new mongoose.Schema({
     Symbol: {
@@ -44,6 +45,10 @@ const collectionModel = new mongoose.Schema({
     UpdatedAt: {
         type: String,
         length: 200,
+        required: false
+    },
+    Expired: {
+        type: Boolean,
         required: false
     }
 }, { collection: 'Collections' });

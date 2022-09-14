@@ -45,7 +45,11 @@ export class ScraperService {
     await page.setUserAgent(
       "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36"
     );
-    await page.goto(url);
+    await page.goto(url, {
+      waitUntil: 'load',
+      // Remove the timeout
+      timeout: 0
+  });
     await page.waitForFunction("window.document.getElementsByTagName('pre') && window.document.getElementsByTagName('pre').length > 0");
 
 
@@ -67,12 +71,69 @@ export class ScraperService {
     await page.setUserAgent(
       "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36"
     );
-    await page.goto(url);
+    await page.goto(url, {
+      waitUntil: 'load',
+      // Remove the timeout
+      timeout: 0
+  });
     await page.waitForFunction("window.document.getElementsByTagName('pre') && window.document.getElementsByTagName('pre').length > 0");
 
 
     result.push(this._getTimeResult("_scrapAllCollectionData", startTime));
     result.push(await this._getAlCollectionPageData(page));
+    await browser.close();
+    return result;
+  }
+
+  async getCollectionsHoldersData(symbol: string): Promise<any> {
+    const startTime: number = Date.now() / 1000;
+    const allSymbolsArray: string[] = symbol.split(",");
+    const arrayOfMethods: any = this._getArrayOfScrapHoldersDataMethods(allSymbolsArray, startTime);
+    const [...methodsResult] = (await Promise.all(arrayOfMethods)).filter((a) => a);
+    const result: any[] = [];
+
+    methodsResult.forEach((data: any) => {
+      result.push(data);
+    });
+
+    return result;
+  }
+
+  _getArrayOfScrapHoldersDataMethods = (symbols: string[], startTime: number): any => {
+    const arrayOfMethods: any = [];
+    symbols.forEach((symbol) => {
+      arrayOfMethods.push(this._scrapCollectionHoldersData(startTime, symbol));
+    });
+
+    return arrayOfMethods;
+  };
+
+  _scrapCollectionHoldersData = async (startTime, symbol) => {
+    const url: string = "https://api-mainnet.magiceden.io/rpc/getCollectionHolderStats/" + symbol;
+    let result: any[] = [];
+    const browser: any = await puppeteer.launch({
+      headless: true,
+      args: ["--no-sandbox"],
+    });
+    const page: any = await browser.newPage();
+    await page.setDefaultNavigationTimeout(0); 
+    await page.setUserAgent(
+      "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36"
+    );
+    await page.goto(url, {
+      waitUntil: 'load',
+      // Remove the timeout
+      timeout: 0
+  });
+    await page.waitForFunction("window.document.getElementsByTagName('pre') && window.document.getElementsByTagName('pre').length > 0");
+
+    let pageData = await this._getAlCollectionPageData(page)
+    if (pageData?.results !== undefined && pageData?.results !== null) {
+      pageData.results.symbol = symbol;
+    }
+    
+    result.push(this._getTimeResult("_scrapAllCollectionData", startTime));
+    result.push(pageData);
     await browser.close();
     return result;
   }
@@ -108,7 +169,11 @@ export class ScraperService {
     await page.setUserAgent(
       "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36"
     );
-    await page.goto("https://magiceden.io/marketplace/" + symbol);
+    await page.goto("https://magiceden.io/marketplace/" + symbol, {
+      waitUntil: 'load',
+      // Remove the timeout
+      timeout: 0
+  });
     await page.waitForSelector(".tw-text-white-1.tw-text-14px.tw-truncate");
 
     result.push(this._getTimeResult("_scrapCollectionData. " + "Symbol: " + symbol, startTime));

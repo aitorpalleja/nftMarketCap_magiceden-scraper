@@ -1,6 +1,6 @@
 const express = require ('express')
 const router = express.Router();
-const userController = require('../controllers/scraperController');
+const userController = require('../modelsControllers/scraperController');
 
 //Routes
 // router.get('/', userController.getAllScrapers);
@@ -8,5 +8,6 @@ const userController = require('../controllers/scraperController');
 router.get('/getData/:nftSymbol', userController.scrapNftAndSaveData);
 
 router.get('/getAllCollections', userController.getAllCollections);
+router.get('/getAllCollectionsUniqueHolders', userController.getAllCollectionsUniqueHolders);
 
 module.exports = router;
