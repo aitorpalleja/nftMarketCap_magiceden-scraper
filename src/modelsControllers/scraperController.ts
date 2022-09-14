@@ -126,13 +126,14 @@ exports.getAllCollectionsUniqueHolders = async (req: any, res: any) => {
         const scraper = new ScraperService();
         // const savedAllCollections = await collectionModel.find({Expired: false});
         const savedAllCollections = await collectionsStatsModel.find( { VolumenAll: { $gt: 100 } } )
+        savedAllCollections.length = 100;
         let collectionsUpdated = 0;
         let symbolsList: string = '';
         let symbolsCount: number = 0;
         for (const collection of savedAllCollections) {
             symbolsCount++;
             symbolsList = symbolsList === '' ? collection.Symbol : symbolsList + ',' + collection.Symbol;
-            if (symbolsCount >= 2) {
+            if (symbolsCount >= 1) {
                 const collectionsData = await scraper.getCollectionsHoldersData(symbolsList);
                 for (const collectionData of collectionsData) {
                     if (collectionData !== undefined && collectionData !== null && collectionData[1]?.results !== undefined) {
