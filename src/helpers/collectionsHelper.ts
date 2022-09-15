@@ -36,47 +36,45 @@ export class CollectionsHelper {
         });
     }
     
-    public getAllCollectionsStatsData = () => {
-        // try {
-        //     console.log("***START getAllCollectionsUniqueHolders***");
-        //     const startTime: number = Date.now() / 1000;
-        //     const scraper = new PuppeteerService();
-        //     // const savedAllCollections = await collectionModel.find({Expired: false});
-        //     const savedAllCollections = await collectionsStatsModel.find( { VolumenAll: { $lt: 100 } } )
-        //     let collectionsUpdated = 0;
-        //     let symbolsList: string = '';
-        //     let symbolsCount: number = 0;
-        //     for (const collection of savedAllCollections) {
-        //         symbolsCount++;
-        //         symbolsList = symbolsList === '' ? collection.Symbol : symbolsList + ',' + collection.Symbol;
-        //         if (symbolsCount >= 2) {
-        //             const collectionsData = await scraper.getCollectionsHoldersData(symbolsList);
-        //             for (const collectionData of collectionsData) {
-        //                 if (collectionData !== undefined && collectionData !== null && collectionData[1]?.results !== undefined) {
-        //                     const totalSupply = collectionData[1].results.totalSupply !== null && collectionData[1].results.totalSupply !== undefined ? collectionData[1].results.totalSupply : null;
-        //                     const uniqueHolders = collectionData[1].results.uniqueHolders !== null && collectionData[1].results.uniqueHolders !== undefined ? collectionData[1].results.uniqueHolders : null;
-        //                     await collectionsStatsModel.updateOne({'Symbol': collectionData[1].results.symbol},{$set:{'TotalSupply': totalSupply, 'UniqueHolders': uniqueHolders }});
-        //                     collectionsUpdated++;
-        //                     // console.log("colleciones actualizadas")
-        //                 }
-        //             }
-        //             symbolsList = '';
-        //             symbolsCount = 0;
-        //         }
-        //     }
-    
-        //     const result = {
-        //         TIME: (Date.now() / 1000 - startTime).toFixed(2) + " segundos",
-        //         ActiveCollectionsLength: savedAllCollections.length,
-        //         CollectionsUpdated: collectionsUpdated
-        //       };
-        //     console.log("***DONE getAllCollectionsUniqueHolders***");
-        //     console.log("TIME: ", result.TIME);
-        //     console.log("ActiveCollectionsLength", savedAllCollections.length);
-        //     console.log("CollectionsUpdated: ", collectionsUpdated);
-        // } catch (error) {
-        //     console.log("   eRROR, ", error)
-        // }
+    public getAllCollectionsStatsData = (): Promise<any> => {
+        const errorLog: string = "Error collectionsHelper --> getAllCollectionsStatsData. Error: ";
+        return new Promise(async (resolve, reject) => {
+            try {
+                // const savedAllCollections = await collectionsController.getAllActiveCollections();
+                const savedAllCollections = await collectionsController.getCollectionsStatsWithVolumenGraterT10();
+                if (savedAllCollections !== null && savedAllCollections !== undefined && savedAllCollections.length > 0) {
+                    let collectionsUpdated = 0;
+                    let symbolsList: string = '';
+                    let symbolsCount: number = 0;
+                    for (const collection of savedAllCollections) {
+                        symbolsCount++;
+                        symbolsList = symbolsList === '' ? collection.Symbol : symbolsList + ',' + collection.Symbol;
+                        if (symbolsCount >= 2) {
+                            const collectionsData: any = await this._puppeterService.scrapCollectionUniqueHoldersAndSupplyData(symbolsList);
+                            if (collectionsData !== null) {
+                                for (const collectionData of collectionsData) {
+                                    if (collectionData !== undefined && collectionData !== null && collectionData?.symbol !== undefined) {
+                                        const totalSupply = collectionData.totalSupply !== null && collectionData.totalSupply !== undefined ? collectionData.totalSupply : null;
+                                        const uniqueHolders = collectionData.uniqueHolders !== null && collectionData.uniqueHolders !== undefined ? collectionData.uniqueHolders : null;
+                                        await collectionsStatsModel.updateOne({'Symbol': collectionData.symbol},{$set:{'TotalSupply': totalSupply, 'UniqueHolders': uniqueHolders }});
+                                        collectionsUpdated++;
+                                    }
+                                }
+                            }
+                            symbolsList = '';
+                            symbolsCount = 0;
+                        }
+                    }
+
+                    resolve({ ActiveCollectionsLength: savedAllCollections.length, CollectionsUpdated: collectionsUpdated });
+                } else {
+                    reject(errorLog + "SavedAllCollections no válidos: " + savedAllCollections);
+                }
+                
+            } catch (error) {
+                reject(errorLog + error);
+            }
+        });
     }
 
     private _getNewCollections = async(allCollections: any) => {
@@ -145,7 +143,11 @@ export class CollectionsHelper {
                     UniqueHolders: null
                 });
                 await collectionsController.saveNewCollection(newCollection);
-                const collectionStatsFinded: any = savedAllCollectionsStats.find(savedCollectionStats => savedCollectionStats.Symbol === newCollectionStats.Symbol);
+
+                let collectionStatsFinded: any = null;
+                if (savedAllCollectionsStats !== null && savedAllCollectionsStats !== undefined && savedAllCollectionsStats.length > 0) {
+                    collectionStatsFinded = savedAllCollectionsStats.find(savedCollectionStats => savedCollectionStats.Symbol === newCollectionStats.Symbol);
+                }
 
                 if (collectionStatsFinded === null || collectionStatsFinded === undefined) {
                     await collectionsController.saveNewCollectionStats(newCollectionStats);

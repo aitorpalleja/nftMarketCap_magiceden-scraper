@@ -16,7 +16,7 @@ export class PuppeteerService {
     const urlData = await this._scrapUrlAndGetData(url);
     let allCollectionsData = null;
 
-    if (urlData?.collections !== undefined && urlData?.collections !== null || urlData?.collections.length > 0) {
+    if (urlData?.collections !== undefined && urlData?.collections !== null && urlData?.collections.length > 0) {
       allCollectionsData = urlData.collections;
     }
 
@@ -28,12 +28,38 @@ export class PuppeteerService {
     const urlData = await this._scrapUrlAndGetData(url);
     let collectionsData = null;
 
-    if (urlData !== undefined && urlData !== null || urlData.length > 0) {
+    if (urlData !== undefined && urlData !== null && urlData.length > 0) {
       collectionsData = urlData;
     }
 
     return collectionsData;
   }
+
+  public scrapCollectionUniqueHoldersAndSupplyData = async (symbols: string) => {
+    const allSymbolsArray: string[] = symbols.split(",");
+    const arrayOfScrapMethods: any = this._getArrayOfScrapHoldersDataMethods(allSymbolsArray);
+    const [...urlDataResults] = (await Promise.all(arrayOfScrapMethods)).filter((a) => a);
+    let collectionData: any = [];
+    urlDataResults.forEach((urlData: any, index: number) => {
+      if (urlData?.results !== undefined && urlData?.results !== null ) {
+        urlData.results.symbol = allSymbolsArray[index];
+        collectionData.push(urlData.results);
+      }
+    });
+
+    return collectionData;
+  }
+
+  private _getArrayOfScrapHoldersDataMethods = (symbols: string[]): any => {
+    const arrayOfScrapMethods: any = [];
+    symbols.forEach(symbol => {
+      const url: string = "https://api-mainnet.magiceden.io/rpc/getCollectionHolderStats/" + symbol;
+      arrayOfScrapMethods.push(this._scrapUrlAndGetData(url));
+    });
+
+    return arrayOfScrapMethods;
+  };
+
 
   private _scrapUrlAndGetData = async (url: string) => {
     let result: any = null;

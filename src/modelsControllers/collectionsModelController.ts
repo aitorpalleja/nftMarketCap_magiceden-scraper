@@ -15,6 +15,29 @@ exports.getAllCollections = async () => {
     return allCollections;
 }
 
+exports.getAllActiveCollections = async () => {
+    let allActiveCollections = null;
+    try {
+        allActiveCollections =  await collectionModel.find({Expired: false})
+    } catch (error) {
+        _logService.log("Error de BBDD, en getAllActiveCollections. ERROR: " + error, LogType.Error);
+    }
+
+    return allActiveCollections;
+}
+
+exports.getCollectionsStatsWithVolumenGraterT10 = async () => {
+    let collectionsStats = null;
+    try {
+        collectionsStats =  await collectionsStatsModel.find({ VolumenAll: { $gt: 100 }})
+    } catch (error) {
+        _logService.log("Error de BBDD, en getCollectionsStatsWithVolumenGraterT10. ERROR: " + error, LogType.Error);
+    }
+
+    return collectionsStats;
+}
+
+
 exports.getAllCollectionsStats = async () => {
     let allCollectionsStats = null;
     try {
