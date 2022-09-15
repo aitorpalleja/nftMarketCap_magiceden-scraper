@@ -22,7 +22,7 @@ export class CollectionsHelper {
                         allCollections = data;
                         newCollections = await this._getNewCollections(allCollections);
                         const savedAllCollectionsStats: any = await collectionsController.getAllCollectionsStats();
-                        this._getAndSaveNewCollectionsData(newCollections, savedAllCollectionsStats);
+                        await this._getAndSaveNewCollectionsData(newCollections, savedAllCollectionsStats);
                         resolve({ NewCollectionsLength: newCollections.length, AllCollectionsLength: allCollections.length })
                     } catch (error) {
                         reject(errorLog + error);
