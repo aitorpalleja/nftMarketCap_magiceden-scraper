@@ -40,8 +40,7 @@ export class CollectionsHelper {
         const errorLog: string = "Error collectionsHelper --> getAllCollectionsStatsData. Error: ";
         return new Promise(async (resolve, reject) => {
             try {
-                // const savedAllCollections = await collectionsController.getAllActiveCollections();
-                const savedAllCollections = await collectionsController.getCollectionsStatsWithVolumenGraterT10();
+                const savedAllCollections = await collectionsController.getCollectionsStatsWithVolumenGraterT100();
                 if (savedAllCollections !== null && savedAllCollections !== undefined && savedAllCollections.length > 0) {
                     let collectionsUpdated = 0;
                     let symbolsList: string = '';

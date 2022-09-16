@@ -6,9 +6,11 @@ import { LogType } from './LogService/LogTypeEnum';
 export class JobsManagerService {
     private _collectionsHelper: CollectionsHelper;
     private _logService: LogService;
+
     private _getAllCollectionsJobStartLog: string = "START _startGetAllCollectionsJob. ";
     private _getAllCollectionsJobEndLog: string = "END _startGetAllCollectionsJob. ";
     private _getAllCollectionsJobErrorLog: string = "Error JobsManagerService --> _startGetAllCollectionsJob. ERROR: ";
+
     private _getAllCollectionsStatsDataJobStartLog: string = "START _startGetAllCollectionsStatsDataJob. ";
     private _getAllCollectionsStatsDataJobEndLog: string = "END _startGetAllCollectionsStatsDataJob. ";
     private _getAllCollectionsStatsDataJobErrorLog: string = "Error JobsManagerService --> _startGetAllCollectionsStatsDataJob. ERROR: ";
@@ -27,16 +29,28 @@ export class JobsManagerService {
     private _startScheduleJobs = () => {
         this._startGetAllCollectionsJob();
         this._startGetAllCollectionsStatsDataJob();
+        this._startDeleteAllTracesJob();
+    }
+
+    private _startDeleteAllTracesJob = () => {
+        try {
+            const job = schedule.scheduleJob('0 */96 * * *', () => {
+                this._deleteAllTracesJob();
+            });
+        } catch (error) {
+        }
+    }
+
+    private _deleteAllTracesJob = async () => {
+        return new Promise(async (resolve, reject) => {
+            await this._logService.deleteAllTraces()
+            resolve(true);
+        })
     }
 
     private _startGetAllCollectionsJob = () => {
         try {
-            const recurrenceRule: any = new schedule.RecurrenceRule();
-            recurrenceRule.hour = 0;
-            recurrenceRule.minute = 0;
-            recurrenceRule.tz = 'Etc/UTC';
-
-            const job = schedule.scheduleJob(recurrenceRule, () => {
+            const job = schedule.scheduleJob('0 */2 * * *', () => {
                 this._getAllCollectionsJob();
             });
         } catch (error) {

@@ -26,7 +26,7 @@ exports.getAllActiveCollections = async () => {
     return allActiveCollections;
 }
 
-exports.getCollectionsStatsWithVolumenGraterT10 = async () => {
+exports.getCollectionsStatsWithVolumenGraterT100 = async () => {
     let collectionsStats = null;
     try {
         collectionsStats =  await collectionsStatsModel.find({ VolumenAll: { $gt: 100 }})

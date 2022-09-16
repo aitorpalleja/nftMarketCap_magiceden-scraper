@@ -27,4 +27,8 @@ export class LogService {
       console.warn(trace);
     }
   }
+
+  public deleteAllTraces = async() => {
+    await tracesController.deleteAllTraces();
+  }
 }
