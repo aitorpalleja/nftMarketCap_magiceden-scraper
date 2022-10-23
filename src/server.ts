@@ -3,10 +3,10 @@ import { ParamsManagerService } from './services/ParamsManagerService';
 import { JobsManagerService } from './services/JobsManagerService';
 
 dotenv.config();
-const paramsService = new ParamsManagerService();
-const jobsManager = new JobsManagerService();
+const paramsService: ParamsManagerService = new ParamsManagerService();
+const jobsManager: JobsManagerService = new JobsManagerService();
 
-const _initializeServer = () => {
+const _initializeServer = (): void => {
   paramsService.getParameters().then(result => {
     jobsManager.startJobs();
   })
