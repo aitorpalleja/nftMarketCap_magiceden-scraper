@@ -63,19 +63,26 @@ export class PuppeteerService {
 
   private _scrapUrlAndGetData = async (url: string) => {
     let result: any = null;
-    let browser: any
+    let browser: any;
+    let pageStatus: any
     try {
       browser = await puppeteer.launch({headless: true, args: ["--no-sandbox"]});
       const page: any = await browser.newPage();
       await page.setDefaultNavigationTimeout(0);
       await page.setUserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36");
-      await page.goto(url, {waitUntil: "load", timeout: 0});
-      await page.waitForFunction("window.document.getElementsByTagName('pre') && window.document.getElementsByTagName('pre').length > 0");
-      result = await this._getPageData(page);
+      pageStatus = await page.goto(url, {waitUntil: "domcontentloaded", timeout: 0});
+      pageStatus = pageStatus.status();
+      if (pageStatus >= 200 && pageStatus <= 299) {
+        await page.waitForFunction("window.document.getElementsByTagName('pre') && window.document.getElementsByTagName('pre').length > 0");
+        result = await this._getPageData(page);
+      } else {
+        this._logService.log("Error PuppeteerService --> scrapUrlAndGetData. URL: " + url + ". ERROR: pageStatus: " + pageStatus, LogType.Error);
+      }
+      
       await browser.close();
     } 
     catch (error) {
-      this._logService.log("Error PuppeteerService --> scrapUrlAndGetData. URL: " + url + ". ERROR: " + error, LogType.Error);
+      this._logService.log("Error PuppeteerService --> scrapUrlAndGetData. Page pageStatus: " + pageStatus + " URL: " + url + ". ERROR: " + error, LogType.Error);
       await browser.close();
     }
 
