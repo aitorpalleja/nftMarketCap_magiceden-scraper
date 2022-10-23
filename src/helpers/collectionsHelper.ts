@@ -40,7 +40,7 @@ export class CollectionsHelper {
         const errorLog: string = "Error collectionsHelper --> getAllCollectionsStatsData. Error: ";
         return new Promise(async (resolve, reject) => {
             try {
-                const savedAllCollections = await collectionsController.getCollectionsStatsWithVolumenGraterT100();
+                const savedAllCollections = await collectionsController.getCollectionsStatsWithVolumenGraterT150();
                 if (savedAllCollections !== null && savedAllCollections !== undefined && savedAllCollections.length > 0) {
                     let collectionsUpdated = 0;
                     let symbolsList: string = '';
@@ -129,7 +129,7 @@ export class CollectionsHelper {
                     Discord: collection.discord,
                     CreatedAt: collection.createdAt,
                     UpdatedAt: collection.updatedAt,
-                    Expired: volumenAll === undefined || volumenAll === null || volumenAll <= 100
+                    Expired: volumenAll === undefined || volumenAll === null || volumenAll <= 150
                 });
                 
                 const newCollectionStats: any = new collectionsStatsModel({
