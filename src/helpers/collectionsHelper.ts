@@ -5,9 +5,11 @@ const collectionsStatsModel = require('../models/collectionsStatsModel');
 
 export class CollectionsHelper { 
     private _puppeterService: PuppeteerService;
+    private _collectionsSaved: number = 0;
 
     constructor() {
         this._puppeterService = new PuppeteerService();
+        this._collectionsSaved = 0;
     }
 
     public getAllCollections = (): Promise<any> => {
@@ -15,6 +17,7 @@ export class CollectionsHelper {
             const errorLog: string = "Error collectionsHelper --> getAllCollections. Error: ";
             let newCollections: any = [];
             let allCollections: any = [];
+            this._collectionsSaved = 0;
             
             this._puppeterService.scrapAllCollectionsData().then(async (data: any) => {
                 if (data !== null) {
@@ -23,7 +26,7 @@ export class CollectionsHelper {
                         newCollections = await this._getNewCollections(allCollections);
                         const savedAllCollectionsStats: any = await collectionsController.getAllCollectionsStats();
                         await this._getAndSaveNewCollectionsData(newCollections, savedAllCollectionsStats);
-                        resolve({ NewCollectionsLength: newCollections.length, AllCollectionsLength: allCollections.length })
+                        resolve({ NewCollectionsToSave: newCollections.length, NewCollectionsSaved: this._collectionsSaved, AllCollections: allCollections.length })
                     } catch (error) {
                         reject(errorLog + error);
                     }
@@ -65,7 +68,7 @@ export class CollectionsHelper {
                         }
                     }
 
-                    resolve({ ActiveCollectionsLength: savedAllCollections.length, CollectionsUpdated: collectionsUpdated });
+                    resolve({ ActiveAllCollections: savedAllCollections.length, CollectionsUpdated: collectionsUpdated });
                 } else {
                     reject(errorLog + "SavedAllCollections no válidos: " + savedAllCollections);
                 }
@@ -153,6 +156,7 @@ export class CollectionsHelper {
                 } else {
                     await collectionsController.updateOneCollectionStatsVolumenAll(newCollectionStats);
                 }
+                this._collectionsSaved += 1;
             }
         }
     }

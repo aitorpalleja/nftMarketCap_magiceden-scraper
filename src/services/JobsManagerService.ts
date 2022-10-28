@@ -91,8 +91,8 @@ export class JobsManagerService {
     private _manageGetAllCollectionsJobResult = (startTime: number, result: any): void => {
         this._allCollectionsJob.Working = false;
         const endTime: string = (Date.now() / 1000 - startTime).toFixed(2) + " segundos";
-        const dataTrace: string = "TIME: " + endTime + ". NewCollectionsLength: " + result?.NewCollectionsLength + ". AllCollectionsLength: " + result?.AllCollectionsLength;
-        if (result?.AllCollectionsLength !== undefined && result?.AllCollectionsLength !== null && result?.NewCollectionsLength !== undefined && result?.NewCollectionsLength !== null) {
+        const dataTrace: string = "TIME: " + endTime + ". NewCollectionsToSave: " + result?.NewCollectionsToSave + ". NewCollectionsSaved: " + result?.NewCollectionsSaved + ". AllCollections: " + result?.AllCollections;
+        if (result?.AllCollections !== undefined && result?.AllCollections !== null && result?.NewCollectionsToSave !== undefined && result?.NewCollectionsToSave !== null && result?.NewCollectionsSaved !== undefined && result?.NewCollectionsSaved !== null) {
             this._logService.log(this._allCollectionsJob.EndLog + dataTrace, LogType.Information);
         } else {
             this._logService.log(this._allCollectionsJob.EndLog + "With ERRORS", LogType.Error);
@@ -151,8 +151,8 @@ export class JobsManagerService {
     private _manageGetAllCollectionsStatsDataJobResult = (startTime: number, result: any): void => {
         this._allCollectionsStatsDataJob.Working = false;
         const endTime: string = (Date.now() / 1000 - startTime).toFixed(2) + " segundos";
-        const dataTrace: string = "TIME: " + endTime + ". ActiveCollectionsLength: " + result?.ActiveCollectionsLength + ". CollectionsUpdated: " + result?.CollectionsUpdated;
-        if (result?.ActiveCollectionsLength !== undefined && result?.ActiveCollectionsLength !== null && result?.CollectionsUpdated !== undefined && result?.CollectionsUpdated !== null) {
+        const dataTrace: string = "TIME: " + endTime + ". ActiveAllCollections: " + result?.ActiveAllCollections + ". CollectionsUpdated: " + result?.CollectionsUpdated;
+        if (result?.ActiveAllCollections !== undefined && result?.ActiveAllCollections !== null && result?.CollectionsUpdated !== undefined && result?.CollectionsUpdated !== null) {
             this._logService.log(this._allCollectionsStatsDataJob.EndLog + dataTrace, LogType.Information);
         } else {
             this._logService.log(this._allCollectionsStatsDataJob.EndLog + "With ERRORS", LogType.Error);
