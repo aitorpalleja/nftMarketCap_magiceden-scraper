@@ -15,17 +15,23 @@ export class CollectionsHelper {
     public getAllCollections = (): Promise<any> => {
         return new Promise((resolve, reject) => {
             const errorLog: string = "Error collectionsHelper --> getAllCollections. Error: ";
-            let newCollections: any = [];
             let allCollections: any = [];
+            let popularCollections: any = [];
+            let newCollections: any = [];
+            let savedCollections: any = [];
             this._collectionsSaved = 0;
             
             this._puppeterService.scrapAllCollectionsData().then(async (data: any) => {
                 if (data !== null) {
                     try {
                         allCollections = data;
-                        newCollections = await this._getNewCollections(allCollections);
+                        popularCollections = await this._getPopularCollections();
+                        const newAndSavedCollections = await this._getNewAndSavedCollections(allCollections);
+                        newCollections = newAndSavedCollections[0];
+                        savedCollections = newAndSavedCollections[1];
                         const savedAllCollectionsStats: any = await collectionsController.getAllCollectionsStats();
-                        await this._getAndSaveNewCollectionsData(newCollections, savedAllCollectionsStats);
+                        await this._getAndSaveNewCollectionsData(newCollections, savedAllCollectionsStats, popularCollections);
+                        await this._updateSavedCollectionsExpiredProperty(savedCollections, popularCollections);
                         resolve({ NewCollectionsToSave: newCollections.length, NewCollectionsSaved: this._collectionsSaved, AllCollections: allCollections.length })
                     } catch (error) {
                         reject(errorLog + error);
@@ -57,8 +63,8 @@ export class CollectionsHelper {
                                 for (const collectionData of collectionsData) {
                                     if (collectionData !== undefined && collectionData !== null && collectionData?.symbol !== undefined) {
                                         const totalSupply = collectionData.totalSupply !== null && collectionData.totalSupply !== undefined ? collectionData.totalSupply : null;
-                                        const uniqueHolders = collectionData.uniqueHolders !== null && collectionData.uniqueHolders !== undefined ? collectionData.uniqueHolders : null;
-                                        await collectionsStatsModel.updateOne({'Symbol': collectionData.symbol},{$set:{'TotalSupply': totalSupply, 'UniqueHolders': uniqueHolders }});
+                                        const uniqueHolders = collectionData.uniqueHolders !== null && collectionData.uniqueHolders !== undefined ? collectionData.uniqueHolders : null;      
+                                        await collectionsController.updateOneCollectionStatsTotalSupplyAndHolders(collectionData, totalSupply, uniqueHolders);
                                         collectionsUpdated++;
                                     }
                                 }
@@ -79,28 +85,59 @@ export class CollectionsHelper {
         });
     }
 
-    private _getNewCollections = async(allCollections: any) => {
+    private _getNewAndSavedCollections = async(allCollections: any) => {
         let newCollections: any = [];
+        let collectionsAlreadySaved: any = [];
         const savedAllCollections: any = await collectionsController.getAllCollections();
         for (const collection of allCollections) {   
             if (collection?.symbol !== null && collection?.symbol !== undefined) {
                 const collectionFinded: any = savedAllCollections.find(savedCollection => savedCollection.Symbol === collection.symbol);
                 if (collectionFinded === null || collectionFinded === undefined) {
                     newCollections.push(collection);
+                } else {
+                    collectionsAlreadySaved.push(collection)
                 }
             }          
         }
 
-        return newCollections;
+        return [newCollections, collectionsAlreadySaved];
     }
 
-    private _getAndSaveNewCollectionsData = async(newCollections: any, savedAllCollectionsStats:any) => {
+    private _getPopularCollections = async() => {
+        let popularCollections: any = [];
+        popularCollections = this._mergeUniqueTwoCollectionsArray(await this._puppeterService.scrapPopularCollectionsData("1h"), popularCollections, 'collectionSymbol');
+        popularCollections = this._mergeUniqueTwoCollectionsArray(await this._puppeterService.scrapPopularCollectionsData("6h"), popularCollections, 'collectionSymbol');
+        popularCollections = this._mergeUniqueTwoCollectionsArray(await this._puppeterService.scrapPopularCollectionsData("24h"), popularCollections, 'collectionSymbol');
+        popularCollections = this._mergeUniqueTwoCollectionsArray(await this._puppeterService.scrapPopularCollectionsData("7d"), popularCollections, 'collectionSymbol');
+        popularCollections = this._mergeUniqueTwoCollectionsArray(await this._puppeterService.scrapPopularCollectionsData("30d"), popularCollections, 'collectionSymbol');
+
+        return popularCollections;
+    }
+
+    private _mergeUniqueTwoCollectionsArray = (firstCollectionArray: any, secondCollectionArray: any, symbolPropertyName: string) => {
+        for (const firstCollection of firstCollectionArray) {
+            if (secondCollectionArray.find(secondCollection => secondCollection[symbolPropertyName] === firstCollection[symbolPropertyName]) === undefined) {
+                secondCollectionArray.push(firstCollection);
+            }
+        }
+
+        return secondCollectionArray;
+    }
+
+    private _getAndSaveNewCollectionsData = async(newCollections: any, savedAllCollectionsStats: any, popularCollections: any) => {
         const numberOfCollectionsToRequest = 300;
         for (let index = 0; index < newCollections.length; index += numberOfCollectionsToRequest) {
             const newCollectionsDetailedData: any = await this._getNewCollectionsDetailedData(newCollections, index, numberOfCollectionsToRequest);
             if (newCollectionsDetailedData !== null) {
-                this._saveNewCollections(newCollectionsDetailedData, newCollections, savedAllCollectionsStats);
+                this._saveNewCollections(newCollectionsDetailedData, newCollections, savedAllCollectionsStats, popularCollections);
             }
+        }
+    }
+
+    private _updateSavedCollectionsExpiredProperty = async(savedCollections: any, popularCollections: any) => {
+        for (const collection of savedCollections) {
+            const isPopularCollection: boolean = popularCollections.find(popularCollection => popularCollection.collectionSymbol === collection.symbol) !== undefined;
+            await collectionsController.updateOneCollectionExpiredProperty(collection, !isPopularCollection && collection.volumeAll <= 150);
         }
     }
 
@@ -118,10 +155,11 @@ export class CollectionsHelper {
         return newSymbols;
     }
 
-    private _saveNewCollections = async(newCollectionsDetailedData: any, newCollections: any, savedAllCollectionsStats: any) => {
+    private _saveNewCollections = async(newCollectionsDetailedData: any, newCollections: any, savedAllCollectionsStats: any, popularCollections: any) => {
         for (const collection of newCollectionsDetailedData) {
             if (collection !== null && collection !== undefined && collection.symbol) {
                 const volumenAll: any = newCollections.find(newCollection => newCollection.symbol === collection.symbol)?.volumeAll;
+                const isPopularCollection: boolean = popularCollections.find(popularCollection => popularCollection.collectionSymbol === collection.symbol) !== undefined;
                 const newCollection: any = new collectionModel({
                     Symbol: collection.symbol,
                     Name: collection.name,
@@ -132,7 +170,7 @@ export class CollectionsHelper {
                     Discord: collection.discord,
                     CreatedAt: collection.createdAt,
                     UpdatedAt: collection.updatedAt,
-                    Expired: volumenAll === undefined || volumenAll === null || volumenAll <= 150
+                    Expired: (volumenAll === undefined || volumenAll === null || volumenAll <= 150) && !isPopularCollection
                 });
                 
                 const newCollectionStats: any = new collectionsStatsModel({

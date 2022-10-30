@@ -35,6 +35,18 @@ export class PuppeteerService {
     return collectionsData;
   }
 
+  public scrapPopularCollectionsData = async (time: string) => {
+    const url = "https://stats-mainnet.magiceden.io/collection_stats/popular_collections/sol?limit=1000&window=" + time;
+    const urlData = await this._scrapUrlAndGetData(url);
+    let popularCollectionsData = [];
+
+    if (urlData !== undefined && urlData !== null && urlData.length > 0) {
+      popularCollectionsData = urlData;
+    }
+
+    return popularCollectionsData;
+  }
+
   public scrapCollectionUniqueHoldersAndSupplyData = async (symbols: string) => {
     const allSymbolsArray: string[] = symbols.split(",");
     const arrayOfScrapMethods: any = this._getArrayOfScrapHoldersDataMethods(allSymbolsArray);
