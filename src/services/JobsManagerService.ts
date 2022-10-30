@@ -120,7 +120,7 @@ export class JobsManagerService {
     private _startGetAllCollectionsStatsDataJob = (): void => {
         try {
             // En el minuto 10 cada 8 horas
-            const job: any = schedule.scheduleJob('10 */8 * * *', () => {
+            const job: any = schedule.scheduleJob('15 */8 * * *', () => {
                 if (this._allCollectionsJob.Working) {
                     this._allCollectionsStatsDataJob.Pending = true;
                 } else {
