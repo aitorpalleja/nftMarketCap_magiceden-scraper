@@ -65,6 +65,22 @@ exports.saveNewCollectionStats = async (newCollectionStats: any) => {
     }
 }
 
+exports.updateOneCollectionExpiredProperty = async(collection: any, expired: boolean) => {
+    try {
+        await collectionModel.updateOne({'Symbol': collection.symbol},{$set:{'Expired': expired }});
+    } catch (error) {
+        _logService.log("Error de BBDD, en updateOneCollectionExpiredProperty. ERROR: " + error, LogType.Error);
+    }
+}
+
+exports.updateOneCollectionStatsTotalSupplyAndHolders = async(collectionStats: any, totalSupply: number, uniqueHolders: number) => {
+    try {
+        await collectionsStatsModel.updateOne({'Symbol': collectionStats.symbol},{$set:{'TotalSupply': totalSupply, 'UniqueHolders': uniqueHolders }})
+    } catch (error) {
+        _logService.log("Error de BBDD, en updateOneCollectionStatsTotalSupplyAndHolders. ERROR: " + error, LogType.Error);
+    }
+}
+
 exports.updateOneCollectionStatsVolumenAll = async (newCollectionStats: any) => {
     try {
         await newCollectionStats.updateOne({'Symbol': newCollectionStats.Symbol},{$set:{'VolumenAll': newCollectionStats.VolumenAll}})
