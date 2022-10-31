@@ -5,13 +5,13 @@
   "main": "dist/src/server.ts",
   "scripts": {
     "dev": "ts-node ./src/server.ts",
-    "start": "node dist/server.js",
-    "foreverStart": "forever -m15 --max-old-space-size=4096 dist/server.js",
-    "foreverStartServer": "forever start -m15 --max-old-space-size=4096 dist/server.js",
+    "start": "node dist/src/server.js",
+    "foreverStart": "forever -m15 --max-old-space-size=4096 dist/src/server.js",
+    "foreverStartServer": "forever start -m15 --max-old-space-size=4096 dist/src/server.js",
     "foreverInfo": "forever list",
     "foreverEnd": "forever stop 0",
     "build": "tsc",
-    "watch-node": "nodemon dist/server.js",
+    "watch-node": "nodemon dist/src/server.js",
     "watch-ts": "tsc -w",
     "compile": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"

@@ -1,4 +1,5 @@
 import { LogType } from "./LogTypeEnum";
+import settings from '../../../settings.json'
 const tracesController = require('../../modelsControllers/tracesModelController');
 const tracesModel = require('../../models/tracesModel');
 
@@ -20,10 +21,13 @@ export class LogService {
       Date: dateTimeString.substring(0,50),
     });
 
-    tracesController.saveNewTrace(newTraceModel);
-    if (logType === LogType.Information) {
+    if (settings.Logs.BBDDLogsEnable) {
+      tracesController.saveNewTrace(newTraceModel);
+    }
+
+    if (logType === LogType.Information && settings.Logs.ConsoleLogsEnable) {
       console.log(trace);
-    } else {
+    } else if (settings.Logs.ConsoleLogsEnable) {
       console.warn(trace);
     }
   }

@@ -1,6 +1,7 @@
 import { JSDOM } from "jsdom";
 import { LogService } from "./LogService/LogService";
 import { LogType } from "./LogService/LogTypeEnum";
+import settings from '../../settings.json'
 const { window } = new JSDOM("<!doctype html><html><body></body></html>");
 const puppeteer: any = require("puppeteer");
 
@@ -77,25 +78,27 @@ export class PuppeteerService {
     let result: any = null;
     let browser: any;
     let pageStatus: any
-    try {
-      browser = await puppeteer.launch({headless: true, args: ["--no-sandbox"]});
-      const page: any = await browser.newPage();
-      await page.setDefaultNavigationTimeout(0);
-      await page.setUserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36");
-      pageStatus = await page.goto(url, {waitUntil: "domcontentloaded"});
-      pageStatus = pageStatus.status();
-      if (pageStatus >= 200 && pageStatus <= 299) {
-        await page.waitForFunction("window.document.getElementsByTagName('pre') && window.document.getElementsByTagName('pre').length > 0");
-        result = await this._getPageData(page);
-      } else {
-        this._logService.log("Error PuppeteerService --> scrapUrlAndGetData. URL: " + url + ". ERROR: pageStatus: " + pageStatus, LogType.Error);
+    if (settings.Puppeteer.Enable) {
+      try {
+        browser = await puppeteer.launch({headless: settings.Puppeteer.Headless, args: ["--no-sandbox"]});
+        const page: any = await browser.newPage();
+        await page.setDefaultNavigationTimeout(0);
+        await page.setUserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36");
+        pageStatus = await page.goto(url, {waitUntil: "domcontentloaded"});
+        pageStatus = pageStatus.status();
+        if (pageStatus >= 200 && pageStatus <= 299) {
+          await page.waitForFunction("window.document.getElementsByTagName('pre') && window.document.getElementsByTagName('pre').length > 0");
+          result = await this._getPageData(page);
+        } else {
+          this._logService.log("Error PuppeteerService --> scrapUrlAndGetData. URL: " + url + ". ERROR: pageStatus: " + pageStatus, LogType.Error);
+        }
+        
+        await browser.close();
+      } 
+      catch (error) {
+        this._logService.log("Error PuppeteerService --> scrapUrlAndGetData. Page pageStatus: " + pageStatus + " URL: " + url + ". ERROR: " + error, LogType.Error);
+        await browser.close();
       }
-      
-      await browser.close();
-    } 
-    catch (error) {
-      this._logService.log("Error PuppeteerService --> scrapUrlAndGetData. Page pageStatus: " + pageStatus + " URL: " + url + ". ERROR: " + error, LogType.Error);
-      await browser.close();
     }
 
     return result;

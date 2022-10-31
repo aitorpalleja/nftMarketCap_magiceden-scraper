@@ -1,5 +1,6 @@
 import { LogService } from "../services/LogService/LogService";
 import { LogType } from "../services/LogService/LogTypeEnum";
+import settings from '../../settings.json'
 const collectionModel = require('../models/collectionsModel');
 const collectionsStatsModel = require('../models/collectionsStatsModel');
 const _logService: LogService = new LogService();
@@ -26,10 +27,10 @@ exports.getAllActiveCollections = async () => {
     return allActiveCollections;
 }
 
-exports.getCollectionsStatsWithVolumenGraterT150 = async () => {
+exports.getCollectionsStatsWithMinVolumen = async () => {
     let collectionsStats = null;
     try {
-        collectionsStats =  await collectionsStatsModel.find({ VolumenAll: { $gt: 150 }})
+        collectionsStats =  await collectionsStatsModel.find({ VolumenAll: { $gt: settings.Collections.MinVolumenExpiredCollections }})
     } catch (error) {
         _logService.log("Error de BBDD, en getCollectionsStatsWithVolumenGraterT10. ERROR: " + error, LogType.Error);
     }

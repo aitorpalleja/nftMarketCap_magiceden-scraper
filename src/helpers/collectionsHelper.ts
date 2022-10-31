@@ -1,4 +1,7 @@
 import { PuppeteerService } from '../services/PuppeteerService';
+import settings from '../../settings.json'
+import { GetAllCollectionsJobResult } from '../services/GetAllCollectionsJobResult';
+import { GetAllCollectionsStatsJobResult } from '../services/GetAllCollectionsStatsJobResult';
 const collectionsController = require('../modelsControllers/collectionsModelController');
 const collectionModel = require('../models/collectionsModel');
 const collectionsStatsModel = require('../models/collectionsStatsModel');
@@ -12,7 +15,7 @@ export class CollectionsHelper {
         this._collectionsSaved = 0;
     }
 
-    public getAllCollections = (): Promise<any> => {
+    public getAllCollections = (): Promise<GetAllCollectionsJobResult> => {
         return new Promise((resolve, reject) => {
             const errorLog: string = "Error collectionsHelper --> getAllCollections. Error: ";
             let allCollections: any = [];
@@ -45,7 +48,7 @@ export class CollectionsHelper {
         });
     }
     
-    public getAllCollectionsStatsData = (): Promise<any> => {
+    public getAllCollectionsStatsData = (): Promise<GetAllCollectionsStatsJobResult> => {
         const errorLog: string = "Error collectionsHelper --> getAllCollectionsStatsData. Error: ";
         return new Promise(async (resolve, reject) => {
             try {
@@ -57,7 +60,7 @@ export class CollectionsHelper {
                     for (const collection of savedAllCollections) {
                         symbolsCount++;
                         symbolsList = symbolsList === '' ? collection.Symbol : symbolsList + ',' + collection.Symbol;
-                        if (symbolsCount >= 2) {
+                        if (symbolsCount >= settings.Collections.CollectionLengthForUniqueHoldersAndSupplyDataScrap) {
                             const collectionsData: any = await this._puppeterService.scrapCollectionUniqueHoldersAndSupplyData(symbolsList);
                             if (collectionsData !== null) {
                                 for (const collectionData of collectionsData) {
@@ -107,14 +110,14 @@ export class CollectionsHelper {
         let popularCollections: any = [];
         popularCollections = this._mergeUniqueTwoCollectionsArray(await this._puppeterService.scrapPopularCollectionsData("1h"), popularCollections, 'collectionSymbol');
         popularCollections = this._mergeUniqueTwoCollectionsArray(await this._puppeterService.scrapPopularCollectionsData("6h"), popularCollections, 'collectionSymbol');
-        popularCollections = this._mergeUniqueTwoCollectionsArray(await this._puppeterService.scrapPopularCollectionsData("24h"), popularCollections, 'collectionSymbol');
+        popularCollections = this._mergeUniqueTwoCollectionsArray(await this._puppeterService.scrapPopularCollectionsData("1d"), popularCollections, 'collectionSymbol');
         popularCollections = this._mergeUniqueTwoCollectionsArray(await this._puppeterService.scrapPopularCollectionsData("7d"), popularCollections, 'collectionSymbol');
         popularCollections = this._mergeUniqueTwoCollectionsArray(await this._puppeterService.scrapPopularCollectionsData("30d"), popularCollections, 'collectionSymbol');
 
         return popularCollections;
     }
 
-    private _mergeUniqueTwoCollectionsArray = (firstCollectionArray: any, secondCollectionArray: any, symbolPropertyName: string) => {
+    private _mergeUniqueTwoCollectionsArray = (firstCollectionArray: any, secondCollectionArray: any, symbolPropertyName: string): any => {
         for (const firstCollection of firstCollectionArray) {
             if (secondCollectionArray.find(secondCollection => secondCollection[symbolPropertyName] === firstCollection[symbolPropertyName]) === undefined) {
                 secondCollectionArray.push(firstCollection);
@@ -125,9 +128,8 @@ export class CollectionsHelper {
     }
 
     private _getAndSaveNewCollectionsData = async(newCollections: any, savedAllCollectionsStats: any, popularCollections: any) => {
-        const numberOfCollectionsToRequest = 300;
-        for (let index = 0; index < newCollections.length; index += numberOfCollectionsToRequest) {
-            const newCollectionsDetailedData: any = await this._getNewCollectionsDetailedData(newCollections, index, numberOfCollectionsToRequest);
+        for (let index = 0; index < newCollections.length; index += settings.Collections.NumberOfCollectionsToScrapDetailedData) {
+            const newCollectionsDetailedData: any = await this._getNewCollectionsDetailedData(newCollections, index, settings.Collections.NumberOfCollectionsToScrapDetailedData);
             if (newCollectionsDetailedData !== null) {
                 this._saveNewCollections(newCollectionsDetailedData, newCollections, savedAllCollectionsStats, popularCollections);
             }
@@ -137,7 +139,7 @@ export class CollectionsHelper {
     private _updateSavedCollectionsExpiredProperty = async(savedCollections: any, popularCollections: any) => {
         for (const collection of savedCollections) {
             const isPopularCollection: boolean = popularCollections.find(popularCollection => popularCollection.collectionSymbol === collection.symbol) !== undefined;
-            await collectionsController.updateOneCollectionExpiredProperty(collection, !isPopularCollection && collection.volumeAll <= 150);
+            await collectionsController.updateOneCollectionExpiredProperty(collection, !isPopularCollection && collection.volumeAll <= settings.Collections.MinVolumenExpiredCollections);
         }
     }
 
@@ -170,7 +172,7 @@ export class CollectionsHelper {
                     Discord: collection.discord,
                     CreatedAt: collection.createdAt,
                     UpdatedAt: collection.updatedAt,
-                    Expired: (volumenAll === undefined || volumenAll === null || volumenAll <= 150) && !isPopularCollection
+                    Expired: (volumenAll === undefined || volumenAll === null || volumenAll <= settings.Collections.MinVolumenExpiredCollections) && !isPopularCollection
                 });
                 
                 const newCollectionStats: any = new collectionsStatsModel({
