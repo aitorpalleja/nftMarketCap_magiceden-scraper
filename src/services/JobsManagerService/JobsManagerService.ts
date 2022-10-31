@@ -1,8 +1,8 @@
 const schedule = require('node-schedule');
-import settings from '../../settings.json'
-import { CollectionsHelper } from '../helpers/collectionsHelper';
-import { LogService } from './LogService/LogService';
-import { LogType } from './LogService/LogTypeEnum';
+import settings from '../../../settings.json'
+import { CollectionsHelper } from '../../helpers/collectionsHelper';
+import { LogService } from '../LogService/LogService';
+import { LogType } from '../LogService/LogTypeEnum';
 import { JobsModel } from './Jobs.model';
 import { GetAllCollectionsJobResult } from './GetAllCollectionsJobResult';
 import { GetAllCollectionsStatsJobResult } from './GetAllCollectionsStatsJobResult';

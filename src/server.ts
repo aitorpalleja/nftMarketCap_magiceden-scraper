@@ -1,6 +1,6 @@
 import dotenv from 'dotenv'
 import { ParamsManagerService } from './services/ParamsManagerService';
-import { JobsManagerService } from './services/JobsManagerService';
+import { JobsManagerService } from './services/JobsManagerService/JobsManagerService';
 import { HeartBeatService } from './services/HeartbeatService';
 
 dotenv.config();

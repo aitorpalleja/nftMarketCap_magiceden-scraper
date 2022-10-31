@@ -1,7 +1,7 @@
 import { PuppeteerService } from '../services/PuppeteerService';
 import settings from '../../settings.json'
-import { GetAllCollectionsJobResult } from '../services/GetAllCollectionsJobResult';
-import { GetAllCollectionsStatsJobResult } from '../services/GetAllCollectionsStatsJobResult';
+import { GetAllCollectionsJobResult } from '../services/JobsManagerService/GetAllCollectionsJobResult';
+import { GetAllCollectionsStatsJobResult } from '../services/JobsManagerService/GetAllCollectionsStatsJobResult';
 const collectionsController = require('../modelsControllers/collectionsModelController');
 const collectionModel = require('../models/collectionsModel');
 const collectionsStatsModel = require('../models/collectionsStatsModel');
