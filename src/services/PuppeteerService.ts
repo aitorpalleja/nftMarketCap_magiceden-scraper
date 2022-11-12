@@ -80,7 +80,7 @@ export class PuppeteerService {
     let pageStatus: any
     if (settings.Puppeteer.Enable) {
       try {
-        browser = await puppeteer.launch({headless: settings.Puppeteer.Headless, args: ["--no-sandbox"]});
+        browser = await puppeteer.launch({headless: settings.Puppeteer.Headless, args: ["--no-sandbox", '--incognito']});
         const page: any = await browser.newPage();
         await page.setDefaultNavigationTimeout(0);
         await page.setUserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36");
@@ -93,11 +93,11 @@ export class PuppeteerService {
           this._logService.log("Error PuppeteerService --> scrapUrlAndGetData. URL: " + url + ". ERROR: pageStatus: " + pageStatus, LogType.Error);
         }
         
-        await browser.close();
+        if (browser !== undefined) await browser.close();
       } 
       catch (error) {
         this._logService.log("Error PuppeteerService --> scrapUrlAndGetData. Page pageStatus: " + pageStatus + " URL: " + url + ". ERROR: " + error, LogType.Error);
-        await browser.close();
+        if (browser !== undefined) await browser.close();
       }
     }
 
