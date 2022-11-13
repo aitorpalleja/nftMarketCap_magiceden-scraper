@@ -35,7 +35,7 @@ export class CollectionsHelper {
                         const savedAllCollectionsStats: any = await collectionsController.getAllCollectionsStats();
                         await this._getAndSaveNewCollectionsData(newCollections, savedAllCollectionsStats, popularCollections);
                         await this._updateSavedCollectionsExpiredProperty(savedCollections, popularCollections);
-                        resolve({ NewCollectionsToSave: newCollections.length, NewCollectionsSaved: this._collectionsSaved, AllCollections: allCollections.length })
+                        resolve({ NewCollectionsToSave: newCollections.length-1, NewCollectionsSaved: this._collectionsSaved, AllCollections: allCollections.length })
                     } catch (error) {
                         reject(errorLog + error);
                     }

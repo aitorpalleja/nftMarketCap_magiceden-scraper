@@ -33,15 +33,19 @@ export class JobsManagerService {
     }
 
     public startJobs = async() => {
-        if (settings.JobsManager.GetAllCollectionsJobEnable) {
-            await this._getAllCollectionsJob();
+        try {
+            if (settings.JobsManager.GetAllCollectionsJobEnable) {
+                await this._getAllCollectionsJob();
+            }
+    
+            if (settings.JobsManager.GetAllCollectionsStatsDataJobEnable) {
+                await this._getAllCollectionsStatsDataJob();
+            }
+    
+            this._startScheduleJobs();
+        } catch (error) {
+            this._logService.log("Catch startJobs. Error: " + error, LogType.Error);
         }
-
-        if (settings.JobsManager.GetAllCollectionsStatsDataJobEnable) {
-            await this._getAllCollectionsStatsDataJob();
-        }
-
-        this._startScheduleJobs();
     }
 
     private _startScheduleJobs = (): void => {
@@ -78,7 +82,11 @@ export class JobsManagerService {
                         this._allCollectionsJob.Pending = true;
                     } else {
                         this._allCollectionsJob.Working = true;
-                        this._getAllCollectionsJob();
+                        try {
+                            this._getAllCollectionsJob();
+                        } catch (error) {
+                            this._logService.log("Catch _startGetAllCollectionsJob. Error: " + error, LogType.Error);
+                        }
                     }
                 }
             });
@@ -126,7 +134,11 @@ export class JobsManagerService {
     private _manageGetAllCollectionsPendingJobs(): void {
         if (this._allCollectionsJob.Pending && !this._allCollectionsJob.Working && !this._allCollectionsStatsDataJob.Working) {
             this._allCollectionsJob.Pending = false;
-            this._getAllCollectionsJob();
+            try {
+                this._getAllCollectionsJob();
+            } catch (error) {
+                this._logService.log("Catch _manageGetAllCollectionsPendingJobs. Error: " + error, LogType.Error);
+            }
         }
     }
 
@@ -139,7 +151,11 @@ export class JobsManagerService {
                         this._allCollectionsStatsDataJob.Pending = true;
                     } else {
                         this._allCollectionsStatsDataJob.Working = true;
-                        this._getAllCollectionsStatsDataJob();
+                        try {
+                            this._getAllCollectionsStatsDataJob();
+                        } catch (error) {
+                            this._logService.log("Catch _startGetAllCollectionsStatsDataJob. Error: " + error, LogType.Error);
+                        }
                     }
                 }
             });
@@ -188,7 +204,11 @@ export class JobsManagerService {
     private _manageGetAllCollectionsStatsDataPendingJobs(): void {
         if (this._allCollectionsStatsDataJob.Pending && !this._allCollectionsStatsDataJob.Working && !this._allCollectionsJob.Working) {
             this._allCollectionsStatsDataJob.Pending = false;
-            this._getAllCollectionsStatsDataJob();
+            try {
+                this._getAllCollectionsStatsDataJob();
+            } catch (error) {
+                this._logService.log("Catch _manageGetAllCollectionsStatsDataPendingJobs. Error: " + error, LogType.Error);
+            }
         }
     }
 }
