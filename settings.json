@@ -1,0 +1,35 @@
+{
+    "JobsManager": {
+        "DeleteAllTracesJobEnable": true,
+        "DeleteAllTracesJobTime": "0 */96 * * *",
+        "GetAllCollectionsJobEnable": true,
+        "GetAllCollectionsJobTime": "0 */3 * * *",
+        "GetAllCollectionsStatsDataJobEnable": true,
+        "GetAllCollectionsStatsDataJobTime": "15 */8 * * *"
+    },
+
+    "Logs": {
+        "BBDDLogsEnable": true,
+        "ConsoleLogsEnable": true
+    },
+
+    "Collections": {
+        "MinVolumenExpiredCollections": 150,
+        "CollectionLengthForUniqueHoldersAndSupplyDataScrap": 2,
+        "NumberOfCollectionsToScrapDetailedData": 300
+    },
+
+    "Heartbeat": {
+        "Enable": true,
+        "IntervalTime": 3600000
+    },
+
+    "Puppeteer": {
+        "Enable": true,
+        "Headless": true
+    },
+
+    "Params": {
+        "ParamsRequestTime": 43200000
+    }
+}
