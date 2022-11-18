@@ -18,7 +18,7 @@ const collectionModel = new mongoose.Schema({
     },
     Image: {
         type: String,
-        length: 200,
+        length: 2000,
         required: false
     },
     Website: {
