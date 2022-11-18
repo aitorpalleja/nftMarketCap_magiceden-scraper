@@ -176,6 +176,7 @@ export class CollectionsHelper {
                 });
                 
                 const newCollectionStats: any = new collectionsStatsModel({
+                    Image: collection.image,
                     Symbol: collection.symbol,
                     FloorPrice: null,
                     ListetCount: null,
