@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 
-const collectionsStatsModel = new mongoose.Schema({
+const topCollectionsStatsModel = new mongoose.Schema({
     Symbol: {
         type: String,
         length: 100,
@@ -39,7 +39,12 @@ const collectionsStatsModel = new mongoose.Schema({
     UniqueHolders: {
         type: mongoose.Types.Decimal128,
         required: false
-    }
-}, { collection: 'CollectionsStats' });
+    },
+    WindowTime: {
+        type: String,
+        length: 3,
+        required: false
+    },
+}, { collection: 'TopCollectionsStats' });
 
-module.exports = mongoose.model('CollectionsStats', collectionsStatsModel);
+module.exports = mongoose.model('TopCollectionsStats', topCollectionsStatsModel);

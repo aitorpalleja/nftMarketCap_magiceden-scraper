@@ -3,6 +3,7 @@ import { LogType } from "../services/LogService/LogTypeEnum";
 import settings from '../../settings.json'
 const collectionModel = require('../models/collectionsModel');
 const collectionsStatsModel = require('../models/collectionsStatsModel');
+const topCollectionsStatsModel = require('../models/topCollectionsStatsModel');
 const _logService: LogService = new LogService();
 
 exports.getAllCollections = async () => {
@@ -87,5 +88,21 @@ exports.updateOneCollectionStatsVolumenAll = async (newCollectionStats: any) => 
         await newCollectionStats.updateOne({'Symbol': newCollectionStats.Symbol},{$set:{'VolumenAll': newCollectionStats.VolumenAll}})
     } catch (error) {
         _logService.log("Error de BBDD, en updateOneCollectionStatsVolumenAll. ERROR: " + error, LogType.Error);
+    }
+}
+
+exports.saveNewTopCollectionStats = async (newTopCollectionStats: any) => {
+    try {
+        await newTopCollectionStats.save();
+    } catch (error) {
+        _logService.log("Error de BBDD, en saveNewTopCollectionStats. ERROR: " + error, LogType.Error);
+    }
+}
+
+exports.deleteAllTopCollectionStats = async () => {
+    try {
+        await topCollectionsStatsModel.remove({});
+    } catch (error) {
+        _logService.log("Error de BBDD, en deleteAllTopCollectionStats. ERROR: " + error, LogType.Error);
     }
 }
