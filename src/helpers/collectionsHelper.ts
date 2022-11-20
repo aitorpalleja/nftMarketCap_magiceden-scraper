@@ -32,7 +32,6 @@ export class CollectionsHelper {
             this._puppeterService.scrapAllCollectionsData().then(async (data: any) => {
                 if (data !== null) {
                     try {
-                        data.length = 10;
                         allCollections = data;
                         const topCollections = await this._getTopCollections();
                         uniqueTopCollections = this._getUniqueTopCollections(topCollections);
