@@ -102,7 +102,7 @@ export class JobsManagerService {
             this._collectionsHelper.getAllCollections().then((result: GetAllCollectionsJobResult) => {
                 this._manageGetAllCollectionsJobResult(startTime, result);
                 resolve(true);
-            }).catch((error: string) => {
+            }).catch((error: any) => {
                 this._manageGetAllCollectionsJobError(error);
                 reject(false)
             });
@@ -123,7 +123,7 @@ export class JobsManagerService {
         this._manageGetAllCollectionsStatsDataPendingJobs();
     }
 
-    private _manageGetAllCollectionsJobError = (error: string): void => {
+    private _manageGetAllCollectionsJobError = (error: any): void => {
         this._allCollectionsJob.Working = false;
         this._logService.log(this._allCollectionsJob.EndLog + "With ERRORS", LogType.Error);
         this._logService.log(this._allCollectionsJob.ErrorLog + error, LogType.Error);
@@ -172,7 +172,7 @@ export class JobsManagerService {
             this._collectionsHelper.getAllCollectionsStatsData().then((result: GetAllCollectionsStatsJobResult) => {
                 this._manageGetAllCollectionsStatsDataJobResult(startTime, result);
                 resolve(true);
-            }).catch((error: string) => {
+            }).catch((error: any) => {
                 this._manageGetAllCollectionsStatsDataJobError(error);
                 reject(false)
             });
@@ -193,7 +193,7 @@ export class JobsManagerService {
         this._manageGetAllCollectionsPendingJobs();
     }
 
-    private _manageGetAllCollectionsStatsDataJobError = (error: string): void => {
+    private _manageGetAllCollectionsStatsDataJobError = (error: any): void => {
         this._allCollectionsStatsDataJob.Working = false;
         this._logService.log(this._allCollectionsStatsDataJob.EndLog + "With ERRORS", LogType.Error);
         this._logService.log(this._allCollectionsStatsDataJob.ErrorLog + error, LogType.Error);
